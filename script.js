@@ -34,6 +34,8 @@ function addPlayer() {
     return;
   }
 
+  if (formation === FORMATIONS.FIVE && players.length === 10) return;
+
   players.push({ name, skill, isGk, id: Date.now() });
   resetPlayerForm();
   renderPlayers();
