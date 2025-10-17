@@ -1,0 +1,277 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  padding: 30px;
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 30px;
+  font-size: 2.5em;
+}
+
+.formation-selector {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.formation-btn {
+  padding: 15px 30px;
+  margin: 0 10px;
+  font-size: 1.1em;
+  border: 2px solid #667eea;
+  background: white;
+  color: #667eea;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.formation-btn:hover {
+  background: #667eea;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.formation-btn.active {
+  background: #667eea;
+  color: white;
+}
+
+.add-player-section {
+  background: #f8f9fa;
+  padding: 25px;
+  border-radius: 15px;
+  margin-bottom: 30px;
+}
+
+.input-group {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  align-items: end;
+}
+
+.input-field {
+  flex: 1;
+  min-width: 150px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  color: #555;
+  font-weight: 600;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 1em;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.checkbox-field input {
+  width: 20px;
+  height: 20px;
+}
+
+.add-btn {
+  padding: 12px 30px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.add-btn:hover {
+  background: #218838;
+  transform: translateY(-2px);
+}
+
+.players-list {
+  margin-bottom: 30px;
+}
+
+.player-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background: #f8f9fa;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  border-left: 4px solid #667eea;
+}
+
+.player-info {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.player-name {
+  font-weight: 600;
+  font-size: 1.1em;
+}
+
+.skill-badge {
+  padding: 5px 15px;
+  border-radius: 20px;
+  font-size: 0.9em;
+  font-weight: 600;
+}
+
+.skill-low {
+  background: #ffc107;
+  color: #000;
+}
+.skill-medium {
+  background: #17a2b8;
+  color: white;
+}
+.skill-high {
+  background: #28a745;
+  color: white;
+}
+
+.goalkeeper-badge {
+  background: #dc3545;
+  color: white;
+  padding: 5px 15px;
+  border-radius: 20px;
+  font-size: 0.9em;
+  font-weight: 600;
+}
+
+.remove-btn {
+  padding: 8px 20px;
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.remove-btn:hover {
+  background: #c82333;
+}
+
+.balance-btn {
+  display: block;
+  width: 100%;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 15px;
+  font-size: 1.3em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-bottom: 30px;
+}
+
+.balance-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+}
+
+.teams-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+.team {
+  background: #f8f9fa;
+  padding: 25px;
+  border-radius: 15px;
+}
+
+.team-header {
+  text-align: center;
+  margin-bottom: 20px;
+  padding: 15px;
+  border-radius: 10px;
+  font-size: 1.5em;
+  font-weight: 600;
+  color: white;
+}
+
+.team1 .team-header {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.team2 .team-header {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.team-player {
+  padding: 12px;
+  background: white;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.error-msg {
+  color: #dc3545;
+  text-align: center;
+  padding: 15px;
+  background: #f8d7da;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .teams-container {
+    grid-template-columns: 1fr;
+  }
+
+  .input-group {
+    flex-direction: column;
+  }
+
+  h1 {
+    font-size: 1.8em;
+  }
+}

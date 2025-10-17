@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="sr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="script.js" defer></script>
+    <link rel="stylesheet" href="style.css" />
+    <title>Balansiranje Fudbalskih Ekipa</title>
+  </head>
+  <body>
+    <div class="container">
+      <h1>⚽ Balansiranje Fudbalskih Ekipa</h1>
+
+      <div class="formation-selector">
+        <button class="formation-btn active" onclick="selectFormation('4+1')">
+          4+1
+        </button>
+        <button class="formation-btn" onclick="selectFormation('5+1')">
+          5+1
+        </button>
+      </div>
+
+      <div class="add-player-section">
+        <div class="input-group">
+          <div class="input-field">
+            <label>Ime igrača</label>
+            <input type="text" id="playerName" placeholder="Unesi ime" />
+          </div>
+          <div class="input-field">
+            <label>Skill</label>
+            <select id="playerSkill">
+              <option value="low">Low</option>
+              <option value="medium" selected>Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+          <div class="input-field checkbox-field">
+            <input type="checkbox" id="isGoalkeeper" />
+            <label>Golman</label>
+          </div>
+          <button class="add-btn" onclick="addPlayer()">Dodaj</button>
+        </div>
+      </div>
+
+      <div class="players-list" id="playersList"></div>
+
+      <button class="balance-btn" onclick="balanceTeams()">
+        Balansiraj Ekipe
+      </button>
+
+      <div id="errorMsg"></div>
+      <div class="teams-container" id="teamsContainer"></div>
+    </div>
+  </body>
+</html>
