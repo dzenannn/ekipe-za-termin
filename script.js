@@ -1,23 +1,7 @@
-const FORMATIONS = {
-  FIVE: "4+1",
-  SIX: "5+1",
-};
-
-const SKILL_VALUES = {
-  low: 1,
-  medium: 2,
-  high: 3,
-};
-
-const MAX_GOALKEEPERS = 2;
-
-let formation = FORMATIONS.FIVE;
+let formation = "4+1";
 let players = [];
 
 function selectFormation(f) {
-  if (!Object.values(FORMATIONS).includes(f)) {
-    throw new Error("Invalid formation");
-  }
   formation = f;
   document.querySelectorAll(".formation-btn").forEach((btn) => {
     btn.classList.remove("active");
@@ -30,30 +14,15 @@ function addPlayer() {
   const skill = document.getElementById("playerSkill").value;
   const isGk = document.getElementById("isGoalkeeper").checked;
 
-  if (!validatePlayerInput(name)) {
-    return;
-  }
-
-  if (formation === FORMATIONS.FIVE && players.length === 10) {
-    return;
-  } else {
-    players.push({ name, skill, isGk, id: Date.now() });
-    resetPlayerForm();
-    renderPlayers();
-  }
-}
-
-function validatePlayerInput(name) {
   if (!name) {
     alert("Unesi ime igrača!");
-    return false;
+    return;
   }
-  return true;
-}
 
-function resetPlayerForm() {
+  players.push({ name, skill, isGk, id: Date.now() });
   document.getElementById("playerName").value = "";
   document.getElementById("isGoalkeeper").checked = false;
+  renderPlayers();
 }
 
 function removePlayer(id) {
@@ -69,162 +38,154 @@ function renderPlayers() {
   }
 
   list.innerHTML = players
-    .map((player) => createPlayerListItem(player))
+    .map(
+      (p) => `
+                <div class="player-item">
+                    <div class="player-info">
+                        <span class="player-name">${p.name}</span>
+                        <span class="skill-badge skill-${
+                          p.skill
+                        }">${p.skill.toUpperCase()}</span>
+                        ${
+                          p.isGk
+                            ? '<span class="goalkeeper-badge">GOLMAN</span>'
+                            : ""
+                        }
+                    </div>
+                    <button class="remove-btn" onclick="removePlayer(${
+                      p.id
+                    })">Ukloni</button>
+                </div>
+            `
+    )
     .join("");
 }
 
-function createPlayerListItem(player) {
-  return `
-    <div class="player-item">
-      <div class="player-info">
-        <span class="player-name">${player.name}</span>
-        <span class="skill-badge skill-${
-          player.skill
-        }">${player.skill.toUpperCase()}</span>
-        ${player.isGk ? '<span class="goalkeeper-badge">GOLMAN</span>' : ""}
-      </div>
-      <button class="remove-btn" onclick="removePlayer(${
-        player.id
-      })">Ukloni</button>
-    </div>
-  `;
-}
-
 function balanceTeams() {
-  const playersPerTeam = formation === FORMATIONS.FIVE ? 5 : 6;
+  const playersPerTeam = formation === "4+1" ? 5 : 6;
   const totalNeeded = playersPerTeam * 2;
 
-  clearMessages();
+  document.getElementById("errorMsg").innerHTML = "";
+  document.getElementById("teamsContainer").innerHTML = "";
 
-  if (!validateTeamRequirements(totalNeeded)) {
+  if (players.length < totalNeeded) {
+    document.getElementById(
+      "errorMsg"
+    ).innerHTML = `<div class="error-msg">Potrebno je ${totalNeeded} igrača za ${formation} formaciju. Trenutno ima ${players.length}.</div>`;
     return;
   }
 
-  const { goalkeepers, fieldPlayers } = separatePlayers();
+  const goalkeepers = players.filter((p) => p.isGk);
+  const fieldPlayers = players.filter((p) => !p.isGk);
 
-  if (!validateGoalkeepers(goalkeepers)) {
+  if (goalkeepers.length > 2) {
+    document.getElementById(
+      "errorMsg"
+    ).innerHTML = `<div class="error-msg">Previše golmana! Maksimalno 2 golmana.</div>`;
     return;
   }
 
-  const sortedFieldPlayers = sortPlayersBySkill(fieldPlayers);
-  const { team1, team2 } = distributePlayersToTeams(
-    sortedFieldPlayers,
-    goalkeepers,
-    playersPerTeam
-  );
+  const skillValue = { low: 1, medium: 2, high: 3 };
+
+  // Sortiraj igrače po skillu (od najvećeg ka najmanjem)
+  fieldPlayers.sort((a, b) => skillValue[b.skill] - skillValue[a.skill]);
+
+  const team1 = [];
+  const team2 = [];
+  let team1Score = 0;
+  let team2Score = 0;
+
+  // Rasporedi golmane
+  if (goalkeepers.length === 2) {
+    team1.push(goalkeepers[0]);
+    team2.push(goalkeepers[1]);
+  }
+
+  // Snake draft metoda - najbolji igrač u tim1, sledeća 2 u tim2, sledeća 2 u tim1, itd.
+  const neededFieldPlayers = totalNeeded - goalkeepers.length;
+  const availableFieldPlayers = fieldPlayers.slice(0, neededFieldPlayers);
+
+  let pickForTeam1 = true;
+  let consecutivePicks = 0;
+  const maxConsecutive = 2;
+
+  for (const player of availableFieldPlayers) {
+    if (pickForTeam1 && team1.length < playersPerTeam) {
+      team1.push(player);
+      team1Score += skillValue[player.skill];
+      consecutivePicks++;
+
+      if (consecutivePicks >= maxConsecutive) {
+        pickForTeam1 = false;
+        consecutivePicks = 0;
+      }
+    } else if (!pickForTeam1 && team2.length < playersPerTeam) {
+      team2.push(player);
+      team2Score += skillValue[player.skill];
+      consecutivePicks++;
+
+      if (consecutivePicks >= maxConsecutive) {
+        pickForTeam1 = true;
+        consecutivePicks = 0;
+      }
+    } else if (team1.length < playersPerTeam) {
+      team1.push(player);
+      team1Score += skillValue[player.skill];
+    } else {
+      team2.push(player);
+      team2Score += skillValue[player.skill];
+    }
+  }
+
+  // Ako ima 1 golman, dodaj ga u slabiju ili random ekipu
+  if (goalkeepers.length === 1) {
+    if (team1Score < team2Score) {
+      team1.push(goalkeepers[0]);
+    } else if (team2Score < team1Score) {
+      team2.push(goalkeepers[0]);
+    } else {
+      // Random ako je isti score
+      if (Math.random() < 0.5) {
+        team1.push(goalkeepers[0]);
+      } else {
+        team2.push(goalkeepers[0]);
+      }
+    }
+  }
 
   renderTeams(team1, team2);
 }
 
-function clearMessages() {
-  document.getElementById("errorMsg").innerHTML = "";
-  document.getElementById("teamsContainer").innerHTML = "";
-}
-
-function validateTeamRequirements(totalNeeded) {
-  if (players.length < totalNeeded) {
-    showError(
-      `Potrebno je ${totalNeeded} igrača za ${formation} formaciju. Trenutno ima ${players.length}.`
-    );
-    return false;
-  }
-  return true;
-}
-
-function validateGoalkeepers(goalkeepers) {
-  if (goalkeepers.length > MAX_GOALKEEPERS) {
-    showError(`Previše golmana! Maksimalno ${MAX_GOALKEEPERS} golmana.`);
-    return false;
-  }
-  return true;
-}
-
-function showError(message) {
-  document.getElementById(
-    "errorMsg"
-  ).innerHTML = `<div class="error-msg">${message}</div>`;
-}
-
-function separatePlayers() {
-  return {
-    goalkeepers: players.filter((p) => p.isGk),
-    fieldPlayers: players.filter((p) => !p.isGk),
-  };
-}
-
-function sortPlayersBySkill(players) {
-  return [...players].sort(
-    (a, b) => SKILL_VALUES[b.skill] - SKILL_VALUES[a.skill]
-  );
-}
-
-function distributePlayersToTeams(fieldPlayers, goalkeepers, playersPerTeam) {
-  const teams = {
-    team1: [],
-    team2: [],
-    team1Score: 0,
-    team2Score: 0,
-  };
-
-  distributeGoalkeepers(teams, goalkeepers);
-  distributeFieldPlayers(teams, fieldPlayers, playersPerTeam);
-
-  return {
-    team1: teams.team1,
-    team2: teams.team2,
-  };
-}
-
-function distributeGoalkeepers(teams, goalkeepers) {
-  if (goalkeepers.length === 2) {
-    teams.team1.push(goalkeepers[0]);
-    teams.team2.push(goalkeepers[1]);
-  }
-}
-
-function distributeFieldPlayers(teams, fieldPlayers, playersPerTeam) {
-  fieldPlayers.forEach((player) => {
-    const playerScore = SKILL_VALUES[player.skill];
-    if (
-      teams.team1Score <= teams.team2Score &&
-      teams.team1.length < playersPerTeam
-    ) {
-      teams.team1.push(player);
-      teams.team1Score += playerScore;
-    } else if (teams.team2.length < playersPerTeam) {
-      teams.team2.push(player);
-      teams.team2Score += playerScore;
-    }
-  });
-}
-
 function renderTeams(team1, team2) {
   const container = document.getElementById("teamsContainer");
-  container.innerHTML = `
-    ${renderTeam(team1, "team1", "Tim 1")}
-    ${renderTeam(team2, "team2", "Tim 2")}
-  `;
-}
 
-function renderTeam(team, className, teamName) {
-  return `
-    <div class="team ${className}">
-      <div class="team-header">${teamName}</div>
-      ${team.map((player) => createTeamPlayerItem(player)).join("")}
-    </div>
-  `;
-}
+  const renderTeam = (team, className, teamName) => {
+    return `
+                    <div class="team ${className}">
+                        <div class="team-header">${teamName}</div>
+                        ${team
+                          .map(
+                            (p) => `
+                            <div class="team-player">
+                                <div class="player-info">
+                                    <span class="player-name">${p.name}</span>
+                                    <span class="skill-badge skill-${
+                                      p.skill
+                                    }">${p.skill.toUpperCase()}</span>
+                                    ${
+                                      p.isGk
+                                        ? '<span class="goalkeeper-badge">GK</span>'
+                                        : ""
+                                    }
+                                </div>
+                            </div>
+                        `
+                          )
+                          .join("")}
+                    </div>
+                `;
+  };
 
-function createTeamPlayerItem(player) {
-  return `
-    <div class="team-player">
-      <div class="player-info">
-        <span class="player-name">${player.name}</span>
-        <span class="skill-badge skill-${
-          player.skill
-        }">${player.skill.toUpperCase()}</span>
-        ${player.isGk ? '<span class="goalkeeper-badge">GK</span>' : ""}
-      </div>
-    </div>
-  `;
+  container.innerHTML =
+    renderTeam(team1, "team1", "Tim 1") + renderTeam(team2, "team2", "Tim 2");
 }
